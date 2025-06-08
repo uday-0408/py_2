@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Compile Code{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+  <h2 class="mb-4">Online Code Compiler</h2>
+
+  <form method="post" action="{% url 'compile' %}">
+    {% csrf_token %}
+    
+    <div class="mb-3">
+      <label for="language" class="form-label">Select Language:</label>
+      <select name="language" class="form-select" required>
+        <option value="python">Python</option>
+        <option value="cpp">C++</option>
+        <option value="java">Java</option>
+        <option value="javascript">JavaScript</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="code" class="form-label">Code:</label>
+      <textarea id="code" name="code" rows="10" class="form-control" required>{{ code|default:""|escape }}</textarea>
+    </div>
+
+    <div class="mb-3">
+      <label for="input_data" class="form-label">Custom Input (optional):</label>
+      <textarea name="input_data" rows="3" class="form-control">{{ input_data|default:""|escape }}</textarea>
+    </div>
+
+    <button type="submit" class="btn btn-success">Run Code</button>
+  </form>
+
+  {% if output %}
+    <div class="mt-4">
+      <h5>Output:</h5>
+      <pre class="bg-dark text-white p-3 rounded">{{ output }}</pre>
+    </div>
+  {% endif %}
+
+  {% if error %}
+    <div class="alert alert-danger mt-3">{{ error }}</div>
+  {% endif %}
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const textarea = document.getElementById("code");
+
+  textarea.addEventListener("keydown", function (e) {
+    const { value, selectionStart, selectionEnd } = this;
+    const indent = "    "; // 4 spaces
+
+    if (e.key === "Tab") {
+      e.preventDefault();
+      if (e.shiftKey) {
+        // Remove indent
+        const before = value.substring(0, selectionStart);
+        if (before.endsWith(indent)) {
+          this.value = value.substring(0, selectionStart - indent.length) + value.substring(selectionEnd);
+          this.selectionStart = this.selectionEnd = selectionStart - indent.length;
+        }
+      } else {
+        // Add indent
+        this.value = value.substring(0, selectionStart) + indent + value.substring(selectionEnd);
+        this.selectionStart = this.selectionEnd = selectionStart + indent.length;
+      }
+    }
+
+    // Handle Enter for indentation
+    else if (e.key === "Enter") {
+      const lineStart = value.lastIndexOf("\n", selectionStart - 1) + 1;
+      const currentLine = value.substring(lineStart, selectionStart);
+      const leadingWhitespace = currentLine.match(/^\s*/)[0];
+
+      setTimeout(() => {
+        this.value =
+          this.value.substring(0, this.selectionStart) +
+          leadingWhitespace +
+          this.value.substring(this.selectionEnd);
+        this.selectionStart = this.selectionEnd = this.selectionStart + leadingWhitespace.length;
+      }, 0);
+    }
+  });
+});
+</script>
+{% endblock %}
