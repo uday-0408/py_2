@@ -3,7 +3,7 @@ import json
 import time
 
 API_HOST = "judge0-ce.p.rapidapi.com"
-API_KEY = "e0f508d109mshd80507861f478a1p1dde1bjsn599150ef2022"  # Replace with your real key
+API_KEY = ""  # Replace with your real key
 
 headers = {
     "content-type": "application/json",
