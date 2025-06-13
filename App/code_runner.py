@@ -1,9 +1,14 @@
 import http.client
 import json
 import time
+import base64
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+API_KEY = os.getenv("API_KEY")
 
 API_HOST = "judge0-ce.p.rapidapi.com"
-API_KEY = ""  # Replace with your real key
 
 headers = {
     "content-type": "application/json",
@@ -13,13 +18,19 @@ headers = {
 
 def send_code_submission(code, language_id=71, input_data=""):
     """Submit code to Judge0 and return the token."""
-    conn = http.client.HTTPSConnection(API_HOST)
+
+    # ✅ Encode source code and input to Base64
+    encoded_code = base64.b64encode(code.encode()).decode()
+    encoded_input = base64.b64encode(input_data.encode()).decode()
+
     payload = json.dumps({
         "language_id": language_id,
-        "source_code": code,
-        "stdin": input_data
+        "source_code": encoded_code,
+        "stdin": encoded_input
     })
-    conn.request("POST", "/submissions?base64_encoded=false&wait=false", body=payload, headers=headers)
+
+    conn = http.client.HTTPSConnection(API_HOST)
+    conn.request("POST", "/submissions?base64_encoded=true&wait=false", body=payload, headers=headers)
     res = conn.getresponse()
     data = res.read()
     conn.close()
