@@ -7,16 +7,39 @@
 <div class="container mt-5">
   <h2 class="mb-4">Online Code Compiler</h2>
 
-  <form method="post" action="{% url 'compile' %}">
+  {% if problem %}
+  <div class="card mb-4">
+    <div class="card-body">
+      <h4 class="card-title">{{ problem.title }}</h4>
+      <p><strong>Difficulty:</strong> {{ problem.difficulty }}</p>
+      <p><strong>Tags:</strong> {{ problem.tags }}</p>
+      <hr>
+      <p><strong>Problem Statement:</strong><br>{{ problem.statement|linebreaksbr }}</p>
+      <p><strong>Constraints:</strong><br>{{ problem.constraints|linebreaksbr }}</p>
+      <p><strong>Input Format:</strong><br>{{ problem.input_format|linebreaksbr }}</p>
+      <p><strong>Output Format:</strong><br>{{ problem.output_format|linebreaksbr }}</p>
+
+      {% if problem.example %}
+        <p><strong>Example:</strong></p>
+        <pre><strong>Input:</strong> {{ problem.example.input_example }}</pre>
+        <pre><strong>Output:</strong> {{ problem.example.output_example }}</pre>
+        <p><strong>Explanation:</strong> {{ problem.example.explanation }}</p>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  <form method="POST" action="{% if problem %}{% url 'compile_with_problem' slug=problem.slug %}{% else %}{% url 'compile' %}{% endif %}">
     {% csrf_token %}
-    
+    {% comment %} <p>Problem slug: {{ problem.slug }}</p> {% endcomment %}
+
     <div class="mb-3">
       <label for="language" class="form-label">Select Language:</label>
       <select name="language" class="form-select" required>
-        <option value="python">Python</option>
-        <option value="cpp">C++</option>
-        <option value="java">Java</option>
-        <option value="javascript">JavaScript</option>
+        <option value="python" {% if language == 'python' %}selected{% endif %}>Python</option>
+        <option value="cpp" {% if language == 'cpp' %}selected{% endif %}>C++</option>
+        <option value="java" {% if language == 'java' %}selected{% endif %}>Java</option>
+        <option value="javascript" {% if language == 'javascript' %}selected{% endif %}>JavaScript</option>
       </select>
     </div>
 

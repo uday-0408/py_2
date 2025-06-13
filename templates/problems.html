@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Problem List{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+  <h2>Choose a Problem</h2>
+  <ul class="list-group">
+    {% for problem in problems %}
+      <li class="list-group-item">
+        <a href="{% url 'compile_with_problem' slug=problem.slug %}">
+          {{ problem.title }} - <small>{{ problem.difficulty }}</small>
+        </a>
+      </li>
+    {% empty %}
+      <li class="list-group-item text-muted">No problems available.</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}
