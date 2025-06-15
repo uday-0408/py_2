@@ -19,11 +19,17 @@
       <p><strong>Input Format:</strong><br>{{ problem.input_format|linebreaksbr }}</p>
       <p><strong>Output Format:</strong><br>{{ problem.output_format|linebreaksbr }}</p>
 
-      {% if problem.example %}
-        <p><strong>Example:</strong></p>
-        <pre><strong>Input:</strong> {{ problem.example.input_example }}</pre>
-        <pre><strong>Output:</strong> {{ problem.example.output_example }}</pre>
-        <p><strong>Explanation:</strong> {{ problem.example.explanation }}</p>
+      {% if problem.examples.all %}
+        <p><strong>Examples:</strong></p>
+        {% for example in problem.examples.all %}
+          <div class="mb-2">
+            <pre class="border p-2"><strong>Input:</strong> {{ example.input_example }}</pre>
+            <pre class="border p-2"><strong>Output:</strong> {{ example.output_example }}</pre>
+            {% if example.explanation %}
+              <p><em>Explanation:</em> {{ example.explanation }}</p>
+            {% endif %}
+          </div>
+        {% endfor %}
       {% endif %}
     </div>
   </div>
@@ -31,7 +37,6 @@
 
   <form method="POST" action="{% if problem %}{% url 'compile_with_problem' slug=problem.slug %}{% else %}{% url 'compile' %}{% endif %}">
     {% csrf_token %}
-    {% comment %} <p>Problem slug: {{ problem.slug }}</p> {% endcomment %}
 
     <div class="mb-3">
       <label for="language" class="form-label">Select Language:</label>
@@ -56,10 +61,38 @@
     <button type="submit" class="btn btn-success">Run Code</button>
   </form>
 
-  {% if output %}
+  {% comment %} {% if test_results %}
     <div class="mt-4">
       <h5>Output:</h5>
       <pre class="bg-dark text-white p-3 rounded">{{ output }}</pre>
+    </div>
+  {% endif %} {% endcomment %}
+
+  {% if test_results %}
+    <div class="mt-4">
+      <h5>Test Results:</h5>
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Input</th>
+            <th>Expected Output</th>
+            <th>Your Output</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for test in test_results %}
+            <tr class="{% if test.correct %}table-success{% else %}table-danger{% endif %}">
+              <td>{{ forloop.counter }}</td>
+              <td><pre>{{ test.input }}</pre></td>
+              <td><pre>{{ test.expected }}</pre></td>
+              <td><pre>{{ test.actual }}</pre></td>
+              <td>{% if test.correct %}Passed{% else %}Failed{% endif %}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
   {% endif %}
 
@@ -91,8 +124,6 @@ document.addEventListener("DOMContentLoaded", () => {
         this.selectionStart = this.selectionEnd = selectionStart + indent.length;
       }
     }
-
-    // Handle Enter for indentation
     else if (e.key === "Enter") {
       const lineStart = value.lastIndexOf("\n", selectionStart - 1) + 1;
       const currentLine = value.substring(lineStart, selectionStart);

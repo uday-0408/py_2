@@ -2,11 +2,12 @@ from django.db import models
 
 # Create your models here.
 
+
 class Problem(models.Model):
     DIFFICULTY_CHOICES = (
-        ('Easy', 'Easy'),
-        ('Medium', 'Medium'),
-        ('Hard', 'Hard'),
+        ("Easy", "Easy"),
+        ("Medium", "Medium"),
+        ("Hard", "Hard"),
     )
 
     title = models.CharField(max_length=200, unique=True)
@@ -23,7 +24,9 @@ class Problem(models.Model):
 
 
 class Example(models.Model):
-    problem = models.ForeignKey(Problem, related_name='examples', on_delete=models.CASCADE)
+    problem = models.ForeignKey(
+        Problem, related_name="examples", on_delete=models.CASCADE
+    )
     input_example = models.TextField()
     output_example = models.TextField()
     explanation = models.TextField(blank=True)
@@ -33,7 +36,9 @@ class Example(models.Model):
 
 
 class TestCase(models.Model):
-    problem = models.ForeignKey(Problem, related_name='testcases', on_delete=models.CASCADE)
+    problem = models.ForeignKey(
+        Problem, related_name="testcases", on_delete=models.CASCADE
+    )
     input_data = models.TextField()
     output_data = models.TextField()
     is_sample = models.BooleanField(default=False)
