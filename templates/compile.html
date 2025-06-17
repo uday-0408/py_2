@@ -40,7 +40,7 @@
 
     <div class="mb-3">
       <label for="language" class="form-label">Select Language:</label>
-      <select name="language" class="form-select" required>
+      <select name="language" id="language-select" class="form-select" required>
         <option value="python" {% if language == 'python' %}selected{% endif %}>Python</option>
         <option value="cpp" {% if language == 'cpp' %}selected{% endif %}>C++</option>
         <option value="java" {% if language == 'java' %}selected{% endif %}>Java</option>
@@ -49,8 +49,9 @@
     </div>
 
     <div class="mb-3">
-      <label for="code" class="form-label">Code:</label>
-      <textarea id="code" name="code" rows="10" class="form-control" required>{{ code|default:""|escape }}</textarea>
+      <label class="form-label">Code:</label>
+      <div id="editor" style="height: 400px; width: 100%; border: 1px solid #ccc;"></div>
+      <input type="hidden" name="code" id="hidden-code">
     </div>
 
     <div class="mb-3">
@@ -60,13 +61,6 @@
 
     <button type="submit" class="btn btn-success">Run Code</button>
   </form>
-
-  {% comment %} {% if test_results %}
-    <div class="mt-4">
-      <h5>Output:</h5>
-      <pre class="bg-dark text-white p-3 rounded">{{ output }}</pre>
-    </div>
-  {% endif %} {% endcomment %}
 
   {% if test_results %}
     <div class="mt-4">
@@ -96,48 +90,66 @@
     </div>
   {% endif %}
 
+  {% if output %}
+    <div class="mt-4">
+      <h5>Output:</h5>
+      <pre class="bg-dark text-white p-3 rounded">{{ output }}</pre>
+    </div>
+  {% endif %}
+
   {% if error %}
     <div class="alert alert-danger mt-3">{{ error }}</div>
   {% endif %}
 </div>
 
+<!-- Monaco Editor Setup -->
+{% comment %} <script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script> {% endcomment %}
+<script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script>
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const textarea = document.getElementById("code");
+  let editor;
+  
+  require.config({ paths: { vs: "https://unpkg.com/monaco-editor@latest/min/vs" } });
 
-  textarea.addEventListener("keydown", function (e) {
-    const { value, selectionStart, selectionEnd } = this;
-    const indent = "    "; // 4 spaces
+  require(["vs/editor/editor.main"], function () {
+    editor = monaco.editor.create(document.getElementById("editor"), {
+      value: `{{ code|default:""|escapejs }}`,
+      language: "{{ language|default:"python" }}",
+      theme: "vs-dark",
+      automaticLayout: true,
+      minimap: { enabled: false },
+    });
 
-    if (e.key === "Tab") {
-      e.preventDefault();
-      if (e.shiftKey) {
-        // Remove indent
-        const before = value.substring(0, selectionStart);
-        if (before.endsWith(indent)) {
-          this.value = value.substring(0, selectionStart - indent.length) + value.substring(selectionEnd);
-          this.selectionStart = this.selectionEnd = selectionStart - indent.length;
+    // Make sure form is selected correctly
+    const form = document.querySelector("form");
+    if (form) {
+      form.addEventListener("submit", function (e) {
+        const code = editor.getValue();
+        alert(code)
+        console.log("✅ Submitting code:", code);
+        document.getElementById("hidden-code").value = code;
+
+        if (!code.trim()) {
+          e.preventDefault();
+          alert("⚠️ Cannot submit empty code!");
         }
-      } else {
-        // Add indent
-        this.value = value.substring(0, selectionStart) + indent + value.substring(selectionEnd);
-        this.selectionStart = this.selectionEnd = selectionStart + indent.length;
-      }
+      });
+    } else {
+      console.error("⚠️ Form not found in DOM!");
     }
-    else if (e.key === "Enter") {
-      const lineStart = value.lastIndexOf("\n", selectionStart - 1) + 1;
-      const currentLine = value.substring(lineStart, selectionStart);
-      const leadingWhitespace = currentLine.match(/^\s*/)[0];
 
-      setTimeout(() => {
-        this.value =
-          this.value.substring(0, this.selectionStart) +
-          leadingWhitespace +
-          this.value.substring(this.selectionEnd);
-        this.selectionStart = this.selectionEnd = this.selectionStart + leadingWhitespace.length;
-      }, 0);
+    // Sync language with editor
+    const langSelect = document.getElementById("language-select");
+    if (langSelect) {
+      langSelect.addEventListener("change", function () {
+        let lang = this.value;
+        if (lang === "cpp") lang = "cpp";
+        if (lang === "python") lang = "python";
+        if (lang === "java") lang = "java";
+        if (lang === "javascript") lang = "javascript";
+        monaco.editor.setModelLanguage(editor.getModel(), lang);
+      });
     }
   });
-});
 </script>
+
 {% endblock %}

@@ -26,6 +26,31 @@ def problem_list(request):
     return render(request, "problems.html", {"problems": problems})
 
 
+# views.py
+def compile_code3(request):
+    print("in compiler_code3")
+    if request.method == "POST":
+        code = request.POST.get("code", "")
+        language = request.POST.get("language", "python")
+
+        if not code:
+            print("no code rceived")
+            return render(
+                request, "compile_monaco.html", {"error": "No code received."}
+            )
+
+        output = execute_code(code, language_id=language_id_map.get(language, 71))
+        if output:
+            print("output has come")
+        return render(
+            request,
+            "compile_monaco.html",
+            {"code": code, "output": output, "language": language},
+        )
+
+    return render(request, "compile_monaco.html")
+
+
 def compile_code(request, slug=None):
     problem = None
     if slug:

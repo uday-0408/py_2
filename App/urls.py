@@ -15,4 +15,5 @@ urlpatterns = [
     path("about/", views.about_page, name="about"),
     path("contact/", views.contact_page, name="contact"),
     path("history/", views.user_history, name="history"),
+    path("monaco/", views.compile_code3, name="Monaco_codes"),
 ]
