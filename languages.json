@@ -1,0 +1,32 @@
+[
+  {
+    "id": 48,
+    "name": "C",
+    "sourceFile": "main.c",
+    "compiler": "gcc",
+    "compilerArgs": "-O2 -Wall -o a.out",
+    "executeCommand": "./a.out"
+  },
+  {
+    "id": 52,
+    "name": "C++",
+    "sourceFile": "main.cpp",
+    "compiler": "g++",
+    "compilerArgs": "-O2 -Wall -o a.out",
+    "executeCommand": "./a.out"
+  },
+  {
+    "id": 54,
+    "name": "Python",
+    "sourceFile": "script.py",
+    "compiler": "python3",
+    "executeCommand": "python3 script.py"
+  },
+  {
+    "id": 62,
+    "name": "Java",
+    "sourceFile": "Main.java",
+    "compiler": "javac",
+    "executeCommand": "java Main"
+  }
+]

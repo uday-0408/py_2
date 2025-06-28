@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Home - CodeCompiler{% endblock %}
+{% block body %}
+<div class="container mt-5">
+  <h1 class="text-center mb-4">Welcome to Online Code Compiler</h1>
+  <p class="lead text-center">Write, compile, and run your code online. Supports multiple programming languages.</p>
+  <div class="text-center mt-4">
+    <a href="{% url 'compile' %}" class="btn btn-primary btn-lg">Start Coding</a>
+  </div>
+</div>
+{% endblock %}

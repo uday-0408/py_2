@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body %}
+<div class="container mt-4">
+  <h2 class="mb-3">
+    {% if problem %}Problem: {{ problem.title }}{% else %}Monaco Code Editor{% endif %}
+  </h2>
+
+  {% if problem %}
+  <div class="card mb-4 shadow-sm">
+    <div class="card-body">
+      <h3 class="card-title">{{ problem.title }}</h3>
+      {% if problem.difficulty %}
+      <span class="badge bg-success">Difficulty: {{ problem.difficulty }}</span>
+      {% endif %}
+      {% if problem.tags %}
+      <p class="mt-2"><strong>Tags:</strong> {{ problem.tags }}</p>
+      {% endif %}
+
+      <hr />
+      <h5>Problem Statement:</h5>
+      <p>{{ problem.statement|linebreaks }}</p>
+
+      {% if problem.constraints %}
+      <h5>Constraints:</h5>
+      <pre class="bg-light p-2">{{ problem.constraints }}</pre>
+      {% endif %}
+
+      {% if problem.input_format %}
+      <h5>Input Format:</h5>
+      <pre class="bg-light p-2">{{ problem.input_format }}</pre>
+      {% endif %}
+
+      {% if problem.output_format %}
+      <h5>Output Format:</h5>
+      <pre class="bg-light p-2">{{ problem.output_format }}</pre>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  <form id="codeForm" method="POST" action="">
+    {% csrf_token %}
+    <div class="row mb-2">
+      <div class="col-8">
+        <select id="languageSelect" class="form-select w-100">
+          <option value="python" {% if language == "python" %}selected{% endif %}>Python</option>
+          <option value="cpp" {% if language == "cpp" %}selected{% endif %}>C++</option>
+          <option value="java" {% if language == "java" %}selected{% endif %}>Java</option>
+          <option value="javascript" {% if language == "javascript" %}selected{% endif %}>JavaScript</option>
+        </select>
+      </div>
+      <div class="col-2">
+        <button type="submit" name="action" value="run" class="btn btn-primary w-100">Run</button>
+      </div>
+      <div class="col-2">
+        <button type="submit" name="action" value="submit" class="btn btn-success w-100">Submit</button>
+      </div>
+    </div>
+
+    <!-- 👇 Custom input textarea -->
+    <div class="mb-3">
+      <label for="input" class="form-label">Custom Input (optional)</label>
+      <textarea name="input" rows="3" class="form-control" placeholder="Enter input here">{{ input }}</textarea>
+    </div>
+
+    <input type="hidden" name="code" id="hiddenCode">
+    <input type="hidden" name="language" id="hiddenLanguage" value="{{ language|default:'python' }}">
+
+    <div id="editor" style="height: 400px; border: 1px solid #ccc;" class="my-3"></div>
+  </form>
+
+  <!-- ✅ Show output if run -->
+  {% if action == 'run' and output %}
+  <div class="alert alert-info mt-3">
+    <h5><strong>Output:</strong></h5>
+    <pre>{{ output }}</pre>
+  </div>
+  {% endif %}
+
+  <!-- ✅ Show run result for test cases -->
+  {% if action == 'run' and run_results %}
+  <div class="alert alert-info mt-4">
+    <strong>Run Results:</strong>
+    {% for result in run_results %}
+      <p>
+        <strong>Input:</strong> {{ result.input }}<br>
+        <strong>Expected:</strong> {{ result.expected }}<br>
+        <strong>Got:</strong> {{ result.output }}
+      </p>
+      <hr>
+    {% endfor %}
+  </div>
+  {% elif action == 'submit' %}
+    {% if all_passed %}
+      <div class="alert alert-success mt-4">All {{ total_cases }} test cases passed!</div>
+    {% else %}
+      <div class="alert alert-danger mt-4">
+        {{ passed_cases }} out of {{ total_cases }} test cases passed.<br>
+        Failed at Test Case #{{ failed_case_number }}
+      </div>
+    {% endif %}
+  {% endif %}
+</div>
+
+<!-- ✅ Monaco Editor -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs/loader.min.js"></script>
+<script>
+  let editor;
+  const templates = {
+    python: `{{ starter_codes.python|escapejs|default:"# Write your Python code here\nprint('Hello, World!')" }}`,
+    cpp: `{{ starter_codes.cpp|escapejs|default:"#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"Hello, World!\" << endl;\n    return 0;\n}" }}`,
+    java: `{{ starter_codes.java|escapejs|default:"public class Main {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, World!\");\n    }\n}" }}`,
+    javascript: `{{ starter_codes.javascript|escapejs|default:"// Write your JavaScript code here\nconsole.log(\"Hello, World!\");" }}`
+  };
+
+  require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs' }});
+
+  require(['vs/editor/editor.main'], function () {
+    const defaultLang = `{{ language|default:"python" }}`;
+    editor = monaco.editor.create(document.getElementById('editor'), {
+      value: `{{ code|escapejs }}` || templates[defaultLang],
+      language: defaultLang,
+      theme: "vs-dark"
+    });
+
+    const hiddenCode = document.getElementById("hiddenCode");
+    const hiddenLanguage = document.getElementById("hiddenLanguage");
+    const languageSelect = document.getElementById("languageSelect");
+
+    languageSelect.addEventListener("change", () => {
+      const selectedLang = languageSelect.value;
+      const newCode = templates[selectedLang] || "# Write your code here";
+      const oldModel = editor.getModel();
+      const newModel = monaco.editor.createModel(newCode, selectedLang);
+      editor.setModel(newModel);
+      if (oldModel) oldModel.dispose();
+      hiddenLanguage.value = selectedLang;
+    });
+
+    document.getElementById("codeForm").addEventListener("submit", function () {
+      hiddenCode.value = editor.getValue();
+    });
+  });
+</script>
+{% endblock %}

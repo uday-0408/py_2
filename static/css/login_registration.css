@@ -1,0 +1,68 @@
+/* auth.css */
+
+body {
+  background-color: #f3f4f6;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.auth-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 50px 15px;
+}
+
+.auth-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  max-width: 900px;
+  width: 100%;
+}
+
+.auth-card {
+  background-color: #ffffff;
+  padding: 30px;
+  border-radius: 10px;
+  flex: 1 1 350px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.auth-card h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.auth-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.auth-card input,
+.auth-card select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.auth-card button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.auth-card button:hover {
+  background-color: #0056b3;
+}
+
+.error {
+  color: red;
+  text-align: center;
+  margin-bottom: 10px;
+}

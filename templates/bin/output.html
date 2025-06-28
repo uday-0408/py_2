@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Execution Result{% endblock %}
+{% block body %}
+<div class="container mt-5">
+  <h2 class="mb-4">Output</h2>
+  <div class="mb-3">
+    <label class="form-label">Language:</label>
+    <p>{{ language|capfirst }}</p>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Input:</label>
+    <pre class="bg-light p-3 border rounded">{{ input_data }}</pre>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Output:</label>
+    <pre class="bg-dark text-white p-3 border rounded">{{ output }}</pre>
+  </div>
+  <a href="{% url 'compile' %}" class="btn btn-primary mt-3">Try Another</a>
+</div>
+{% endblock %}

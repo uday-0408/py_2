@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Compile Code{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+  <h2 class="mb-4">Online Code Compiler</h2>
+
+  {% if problem %}
+  <div class="card mb-4">
+    <div class="card-body">
+      <h4 class="card-title">{{ problem.title }}</h4>
+      <p><strong>Difficulty:</strong> {{ problem.difficulty }}</p>
+      <p><strong>Tags:</strong> {{ problem.tags }}</p>
+      <hr>
+      <p><strong>Problem Statement:</strong><br>{{ problem.statement|linebreaksbr }}</p>
+      <p><strong>Constraints:</strong><br>{{ problem.constraints|linebreaksbr }}</p>
+      <p><strong>Input Format:</strong><br>{{ problem.input_format|linebreaksbr }}</p>
+      <p><strong>Output Format:</strong><br>{{ problem.output_format|linebreaksbr }}</p>
+
+      {% if problem.examples.all %}
+        <p><strong>Examples:</strong></p>
+        {% for example in problem.examples.all %}
+          <div class="mb-2">
+            <pre class="border p-2"><strong>Input:</strong> {{ example.input_example }}</pre>
+            <pre class="border p-2"><strong>Output:</strong> {{ example.output_example }}</pre>
+            {% if example.explanation %}
+              <p><em>Explanation:</em> {{ example.explanation }}</p>
+            {% endif %}
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  <form method="POST" action="{% if problem %}{% url 'compile_with_problem' slug=problem.slug %}{% else %}{% url 'compile' %}{% endif %}">
+    {% csrf_token %}
+
+    <div class="mb-3">
+      <label for="language" class="form-label">Select Language:</label>
+      <select name="language" id="language-select" class="form-select" required>
+        <option value="python" {% if language == 'python' %}selected{% endif %}>Python</option>
+        <option value="cpp" {% if language == 'cpp' %}selected{% endif %}>C++</option>
+        <option value="java" {% if language == 'java' %}selected{% endif %}>Java</option>
+        <option value="javascript" {% if language == 'javascript' %}selected{% endif %}>JavaScript</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Code:</label>
+      <div id="editor" style="height: 400px; width: 100%; border: 1px solid #ccc;"></div>
+      <input type="hidden" name="code" id="hidden-code">
+    </div>
+
+    <div class="mb-3">
+      <label for="input_data" class="form-label">Custom Input (optional):</label>
+      <textarea name="input_data" rows="3" class="form-control">{{ input_data|default:""|escape }}</textarea>
+    </div>
+
+    <button type="submit" class="btn btn-success">Run Code</button>
+  </form>
+
+  {% if test_results %}
+    <div class="mt-4">
+      <h5>Test Results:</h5>
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Input</th>
+            <th>Expected Output</th>
+            <th>Your Output</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for test in test_results %}
+            <tr class="{% if test.correct %}table-success{% else %}table-danger{% endif %}">
+              <td>{{ forloop.counter }}</td>
+              <td><pre>{{ test.input }}</pre></td>
+              <td><pre>{{ test.expected }}</pre></td>
+              <td><pre>{{ test.actual }}</pre></td>
+              <td>{% if test.correct %}Passed{% else %}Failed{% endif %}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+
+  {% if output %}
+    <div class="mt-4">
+      <h5>Output:</h5>
+      <pre class="bg-dark text-white p-3 rounded">{{ output }}</pre>
+    </div>
+  {% endif %}
+
+  {% if error %}
+    <div class="alert alert-danger mt-3">{{ error }}</div>
+  {% endif %}
+</div>
+
+<!-- Monaco Editor Setup -->
+{% comment %} <script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script> {% endcomment %}
+<script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script>
+<script>
+  let editor;
+  
+  require.config({ paths: { vs: "https://unpkg.com/monaco-editor@latest/min/vs" } });
+
+  require(["vs/editor/editor.main"], function () {
+    editor = monaco.editor.create(document.getElementById("editor"), {
+      value: `{{ code|default:""|escapejs }}`,
+      language: "{{ language|default:"python" }}",
+      theme: "vs-dark",
+      automaticLayout: true,
+      minimap: { enabled: false },
+    });
+
+    // Make sure form is selected correctly
+    const form = document.querySelector("form");
+    if (form) {
+      form.addEventListener("submit", function (e) {
+        const code = editor.getValue();
+        alert(code)
+        console.log("✅ Submitting code:", code);
+        document.getElementById("hidden-code").value = code;
+
+        if (!code.trim()) {
+          e.preventDefault();
+          alert("⚠️ Cannot submit empty code!");
+        }
+      });
+    } else {
+      console.error("⚠️ Form not found in DOM!");
+    }
+
+    // Sync language with editor
+    const langSelect = document.getElementById("language-select");
+    if (langSelect) {
+      langSelect.addEventListener("change", function () {
+        let lang = this.value;
+        if (lang === "cpp") lang = "cpp";
+        if (lang === "python") lang = "python";
+        if (lang === "java") lang = "java";
+        if (lang === "javascript") lang = "javascript";
+        monaco.editor.setModelLanguage(editor.getModel(), lang);
+      });
+    }
+  });
+</script>
+
+{% endblock %}

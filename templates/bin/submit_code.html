@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}
+Submit Code
+{% endblock title %}
+
+{% block body %}
+<form action="{% url 'submit_code' %}" method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="codeInput" class="form-label">Enter your code:</label>
+        <textarea class="form-control" id="codeInput" rows="10" name="codeInput">{{ code }}</textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+{% if output %}
+<div class="mt-4">
+    <h4>Output:</h4>
+    <pre>{{ output }}</pre>
+</div>
+{% endif %}
+
+{% if error %}
+<div class="mt-4 text-danger">
+    <strong>Error:</strong> {{ error }}
+</div>
+{% endif %}
+{% endblock body %}

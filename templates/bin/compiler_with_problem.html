@@ -1,0 +1,31 @@
+{% extends "compile_monaco.html" %}
+
+{% block content %}
+<div class="problem-container">
+  <h1>{{ problem.title }}</h1>
+  <p><strong>Slug:</strong> {{ problem.slug }}</p>
+
+  <h3>Statement:</h3>
+  <p>{{ problem.statement }}</p>
+
+  <h3>Constraints:</h3>
+  <p>{{ problem.constraints }}</p>
+
+  <h3>Input format:</h3>
+  <p>{{ problem.input_format }}</p>
+
+  <h3>Output format:</h3>
+  <p>{{ problem.output_format }}</p>
+
+  <h3>Difficulty:</h3>
+  <p>{{ problem.difficulty }}</p>
+
+  <h3>Tags:</h3>
+  <p>{{ problem.tags }}</p>
+
+  {%block page%}compiler_with_problem{%endblock%}
+  {% if output %}
+  {%block output%}{{output}}{%endblock%}
+  {% endif %}
+</div>
+{% endblock %}
