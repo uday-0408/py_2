@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404, render
-from App.code_runner2 import execute_code
+from App.code_runner.code_runner2 import execute_code
 from rest_framework import generics
 from .models import Problem, TestCase
 from .serializers import ProblemSerializer
@@ -15,7 +15,7 @@ from django.shortcuts import render, redirect
 from django.db import IntegrityError
 from django.contrib import messages
 from .models import AppUser
-from App.code_runner3 import execute_code as execute_code3
+from App.code_runner.code_runner3 import execute_code as execute_code3
 
 # from django.contrib.auth import get_user_model
 
@@ -163,8 +163,14 @@ def compile_code_monaco1(request, slug=None):
 
 from django.shortcuts import render, get_object_or_404
 from App.models import Problem
-from .utils import generate_default_function, generate_runner_code, compare_outputs
-from .code_runner2 import execute_code  # Your function to call Judge0 or similar API
+from .utils import (
+    generate_default_function,
+    generate_runner_code,
+    compare_outputs,
+)
+from .code_runner.code_runner2 import (
+    execute_code,
+)  # Your function to call Judge0 or similar API
 
 
 def compile_code_monaco1(request, slug=None):
@@ -237,7 +243,9 @@ from .utils import generate_runner_code, generate_default_function
 
 from django.shortcuts import render, get_object_or_404
 from .models import Problem
-from App.code_runner3 import execute_code as execute_code3  # your FastAPI caller
+from App.code_runner.code_runner3 import (
+    execute_code as execute_code3,
+)  # your FastAPI caller
 
 language_map = {
     "python": "python",

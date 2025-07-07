@@ -1,9 +1,49 @@
 {% extends "base.html" %}
 {% block title %}Contact Us{% endblock %}
+
 {% block body %}
-<div class="container mt-5">
-  <h2>Contact Us</h2>
-  <p>Email: support@codecompiler.com</p>
-  <p>Phone: +91-123-456-7890</p>
+<div class="container mt-5 max-w-2xl mx-auto">
+  <h2 class="mb-4 text-success">📬 Contact Us</h2>
+
+  <p class="mb-3">
+    We’d love to hear from you! Whether you have questions, feedback, suggestions, or just want to say hello — feel free to reach out.
+  </p>
+
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      <h5 class="card-title mb-3">Get in Touch</h5>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+          📧 <strong>Email:</strong> <a href="mailto:support@codecompiler.com">support@codecompiler.com</a>
+        </li>
+        <li class="list-group-item">
+          📞 <strong>Phone:</strong> +91-123-456-7890
+        </li>
+        <li class="list-group-item">
+          🌐 <strong>Website:</strong> <a href="/">www.codecompiler.com</a>
+        </li>
+        <li class="list-group-item">
+          🧑‍💻 <strong>Support Hours:</strong> Mon - Sat, 10:00 AM to 6:00 PM IST
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <p>
+      You can also follow us for updates, features, and new challenges:
+    </p>
+    <ul class="list-inline">
+      <li class="list-inline-item">
+        <a href="https://github.com/uday-0408" target="_blank" class="btn btn-outline-dark btn-sm">GitHub</a>
+      </li>
+      <li class="list-inline-item">
+        <a href="https://twitter.com/" target="_blank" class="btn btn-outline-info btn-sm">Twitter</a>
+      </li>
+      <li class="list-inline-item">
+        <a href="https://www.linkedin.com/in/uday-chauhan-866669311/" target="_blank" class="btn btn-outline-primary btn-sm">LinkedIn</a>
+      </li>
+    </ul>
+  </div>
 </div>
 {% endblock %}

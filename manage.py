@@ -6,7 +6,7 @@ import subprocess
 
 
 def start_docker_container():
-    container_name = "code-runner"
+    container_name = "code_runner_2"
 
     # Check if the container is already running
     try:

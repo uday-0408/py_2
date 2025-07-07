@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div class="container mt-5 mx-auto max-w-3xl bg-white shadow-md rounded-2xl p-6">
+  <h2 class="text-2xl font-bold mb-6 text-center text-blue-600">Welcome, {{ user.username|default:user.email }}</h2>
+
+  <div class="flex flex-col items-center mb-4">
+  {% if user.profile_pic %}
+    <img
+      src="{{ user.profile_pic.url }}"
+      alt="Profile Pic"
+      class="rounded-full border-2 border-blue-500 w-36 h-36 object-cover mb-2"
+      style="max-width: 144px; max-height: 144px;"
+    >
+  {% else %}
+    <p class="text-gray-500">No profile picture uploaded</p>
+  {% endif %}
+</div>
+
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-lg text-gray-700">
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    <p><strong>Phone:</strong> {{ user.phone }}</p>
+    <p><strong>Gender:</strong> {{ user.gender }}</p>
+    <p><strong>DOB:</strong> {{ user.dob }}</p>
+    {% comment %} <p class="md:col-span-2"><strong>Bio:</strong> {{ user.bio }}</p> {% endcomment %}
+  </div>
+
+  <div class="text-center mt-6">
+    <a href="{% url 'update-profile' %}" class="btn btn-primary bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">Edit Profile</a>
+  </div>
+</div>
+{% endblock body %}

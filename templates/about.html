@@ -1,8 +1,60 @@
 {% extends "base.html" %}
-{% block title %}About Us{% endblock %}
+{% block title %}About CodeCompiler{% endblock %}
+
 {% block body %}
 <div class="container mt-5">
-  <h2>About CodeCompiler</h2>
-  <p class="lead">CodeCompiler is an online tool built with Django and Judge0 API that allows users to write and execute code in multiple languages.</p>
+  <h2 class="mb-3 text-success">About CodeCompiler</h2>
+
+  <p class="lead">
+    <strong>CodeCompiler</strong> is a modern, full-stack coding practice platform built with <strong>Django</strong> on the backend and a real-time <strong>Monaco-based code editor</strong> on the frontend.
+  </p>
+
+  <hr class="my-4">
+
+  <h4 class="text-primary">🚀 Key Features:</h4>
+  <ul class="list-group list-group-flush mb-4">
+    <li class="list-group-item">
+      ✨ <strong>Multi-language Support:</strong> Write and run code in <code>Python</code>, <code>C++</code>, <code>Java</code>, and <code>JavaScript</code>.
+    </li>
+    <li class="list-group-item">
+      ⚙️ <strong>FastAPI-Powered Code Execution:</strong> Your code is executed in a <strong>Docker-isolated</strong> backend using a secure and scalable <strong>FastAPI</strong> service.
+    </li>
+    <li class="list-group-item">
+      📚 <strong>Problem Solving Environment:</strong> Practice solving algorithmic problems with sample inputs, constraints, and automated test case validation.
+    </li>
+    <li class="list-group-item">
+      🔐 <strong>Authentication System:</strong> Register and log in to save submissions, update profiles, and track your coding history.
+    </li>
+    <li class="list-group-item">
+      🧠 <strong>Submission History:</strong> Every successful or failed submission is saved in <strong>MongoDB</strong> and available in your personal history page.
+    </li>
+    <li class="list-group-item">
+      🖼️ <strong>Profile Management:</strong> Update your profile, including username, email, phone number, bio, gender, date of birth, and profile picture.
+    </li>
+    <li class="list-group-item">
+      🎯 <strong>Real-Time Feedback:</strong> View case-by-case output, errors, and success/failure reports for each test case.
+    </li>
+  </ul>
+
+  <h4 class="text-primary">💡 Why CodeCompiler?</h4>
+  <p>
+    Whether you're a beginner learning the basics, a student preparing for competitive programming, or a developer brushing up for interviews — <strong>CodeCompiler</strong> offers a focused, distraction-free experience for writing and testing code directly in the browser.
+  </p>
+
+  <p>
+    The platform is built with modern web technologies, combining the flexibility of <strong>Django</strong>, speed of <strong>FastAPI</strong>, and power of <strong>Monaco Editor</strong> (the same editor behind VS Code) to bring a seamless developer experience.
+  </p>
+
+  <h4 class="text-primary">🔧 Tech Stack</h4>
+  <ul class="list-group list-group-flush mb-4">
+    <li class="list-group-item">📦 <strong>Backend:</strong> Django (User & Problem Management)</li>
+    <li class="list-group-item">⚡ <strong>Code Execution:</strong> FastAPI + Docker (Secure runtime)</li>
+    <li class="list-group-item">🧠 <strong>Database:</strong> SQLite (core) + MongoDB (submissions)</li>
+    <li class="list-group-item">🧩 <strong>Frontend:</strong> HTML, Tailwind CSS, Bootstrap, Monaco Editor</li>
+  </ul>
+
+  <p class="mt-4">
+    💬 Have feedback or want to contribute? We're continuously improving. Reach out via the <a href="{% url 'contact' %}">Contact</a> page!
+  </p>
 </div>
 {% endblock %}

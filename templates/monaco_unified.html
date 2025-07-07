@@ -3,6 +3,18 @@
 
 {% block body %}
 <div class="container mt-4">
+  {% if not_logged_in %}
+  <div class="alert alert-warning d-flex justify-content-between align-items-center">
+    <div>
+      <strong>⚠️ You must be logged in to run or submit code.</strong>
+    </div>
+    <div>
+      <a href="{% url 'auth-page' %}" class="btn btn-sm btn-outline-primary me-2">Login</a>
+      <a href="{% url 'auth-page' %}" class="btn btn-sm btn-success">Register</a>
+    </div>
+  </div>
+{% endif %}
+
   <h2 class="mb-3">
     {% if problem %}Problem: {{ problem.title }}{% else %}Monaco Code Editor{% endif %}
   </h2>

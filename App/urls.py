@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.urls import path
 from App import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 
 urlpatterns = [
@@ -19,6 +21,9 @@ urlpatterns = [
     path("auth/", views.auth_view, name="auth-page"),
     path("register/", views.register_user, name="register-user"),
     path("login/", views.login_user, name="login-user"),
+    path("profile/", views.profile_view, name="profile-page"),
+    path("profile/update/", views.update_profile, name="update-profile"),
+    path("logout/", views.logout_view, name="logout-view"),
     # path("register/", views.register_user, name="register"),
     # path("monaco/", views.compile_code_monaco, name="monaco_editor"),
     # path(
@@ -28,3 +33,4 @@ urlpatterns = [
     # ),
     # path("monaco/", views.compile_code3, name="Monaco_codes"),
 ]
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

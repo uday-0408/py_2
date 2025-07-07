@@ -5,6 +5,7 @@ from django.contrib.auth.models import AbstractUser
 class AppUser(AbstractUser):
     phone = models.CharField(max_length=15, unique=True)
     gender = models.CharField(max_length=20, blank=True)
+    profile_pic = models.ImageField(upload_to="profile_pics/", null=True, blank=True)
     dob = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
