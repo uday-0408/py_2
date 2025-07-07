@@ -6,7 +6,7 @@ def execute_code(code, language="python", input_data=""):
     Call FastAPI-based code runner and return output.
     """
     try:
-        # print(f"code came in execute_code of code_runner3 :{code}")
+        print(f"code came in execute_code of code_runner3 :{code}")
         response = requests.post(
             "http://localhost:8002/run",
             json={"language": language, "code": code, "input": input_data},

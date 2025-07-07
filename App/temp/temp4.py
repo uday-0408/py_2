@@ -1,16 +1,29 @@
-import sys
-import os
+import requests
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+language = "java"
+code = """public class Main {
+    public static void main(String[] args) {
+        int x = 10;
+        for(int i = 0; i < x; i++) {
+            System.out.println(i);
+        }
+        System.out.println("Hello, World!");
+    }
+}"""
+input_data = ""
 
-from App.mongo import (
-    log_submission_attempt,
-    get_submission_by_id,
-    get_submissions_by_user,
-    update_submission,
-    delete_submission,
+response = requests.post(
+    "http://localhost:8002/run",
+    json={"language": language, "code": code, "input": input_data},
+    timeout=10,
 )
 
-code = "print('This is hello from HELL')"
-language = "python"
-log_submission_attempt(1, 1, language, code, 0.322)
+result = response.json()
+print(result)
+stdout = result.get("stdout", "").strip()
+stderr = result.get("stderr", "").strip()
+
+if stderr:
+    print("Error:\n", stderr)
+else:
+    print("Output:\n", stdout)
