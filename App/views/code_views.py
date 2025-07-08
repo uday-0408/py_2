@@ -1,8 +1,9 @@
 # code_views.py
 
 # Django imports
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
 
 # REST Framework imports
 from rest_framework import generics
@@ -11,10 +12,11 @@ from App.serializers import ProblemSerializer
 # Core models and execution
 from App.models import Problem
 from App.code_runner.code_runner3 import execute_code
-from App.mongo import log_submission_attempt
+from App.mongo import log_submission_attempt, get_comments_for_problem, save_comment
 
 # Standard library
 import json, re, textwrap, time
+
 
 # ------------------------
 # ✅ Language Map
@@ -62,6 +64,8 @@ def compile_code_monaco(request, slug=None):
             get_starter_code(problem, lang_name) if problem else ""
         )
 
+    comments = get_comments_for_problem(slug) if problem else []
+
     if request.method == "POST":
         code = request.POST.get("code", "").strip()
         action = request.POST.get("action", "run")
@@ -77,11 +81,9 @@ def compile_code_monaco(request, slug=None):
                     "language": language,
                     "starter_codes": starter_codes,
                     "not_logged_in": True,
+                    "comments": comments,
                 },
             )
-
-        code = request.POST.get("code", "")
-        action = request.POST.get("action", "run")
 
         if not code.strip():
             return render(
@@ -93,6 +95,7 @@ def compile_code_monaco(request, slug=None):
                     "code": starter_code,
                     "language": language,
                     "starter_codes": starter_codes,
+                    "comments": comments,
                 },
             )
 
@@ -108,6 +111,7 @@ def compile_code_monaco(request, slug=None):
                     "action": "run",
                     "run_results": results,
                     "starter_codes": starter_codes,
+                    "comments": comments,
                 },
             )
 
@@ -133,10 +137,10 @@ def compile_code_monaco(request, slug=None):
                     "failed_case_number": passed_cases + 1 if not all_passed else None,
                     "run_results": results,
                     "starter_codes": starter_codes,
+                    "comments": comments,
                 },
             )
 
-    # Initial GET render
     return render(
         request,
         "monaco_unified.html",
@@ -145,6 +149,7 @@ def compile_code_monaco(request, slug=None):
             "problem": problem,
             "language": "python",
             "starter_codes": starter_codes,
+            "comments": comments,
         },
     )
 
@@ -377,3 +382,45 @@ if __name__ == "__main__":
         )
 
     return results, passed_cases, len(test_cases)
+
+
+@login_required
+def submit_comment(request, slug):
+    if request.method == "POST":
+        comment = request.POST.get("comment", "").strip()
+        if comment:
+            problem = get_object_or_404(Problem, slug=slug)
+            save_comment(
+                problem=problem,
+                user_id=request.user.id,
+                username=request.user.username,
+                comment_text=comment,
+            )
+    return redirect("compile_with_problem", slug=slug)
+
+
+from django.http import JsonResponse
+from App.mongo import get_leaderboard_for_problem  # or leaderboard.py
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+
+def leaderboard_data(request, slug):
+    problem = get_object_or_404(Problem, slug=slug)
+    records = get_leaderboard_for_problem(problem.id)
+
+    leaderboard = []
+    user_times = [r["time_taken"] for r in records]
+
+    for index, record in enumerate(records):
+        uid = record.get("user_id")
+        username = User.objects.filter(id=uid).first().username if uid else "Anonymous"
+        time = record.get("time_taken")
+        percentile = round((index + 1) / len(user_times) * 100, 2)
+
+        leaderboard.append(
+            {"username": username, "time_taken": time, "percentile": percentile}
+        )
+
+    return JsonResponse({"data": leaderboard})

@@ -15,9 +15,14 @@
   </div>
 {% endif %}
 
-  <h2 class="mb-3">
-    {% if problem %}Problem: {{ problem.title }}{% else %}Monaco Code Editor{% endif %}
-  </h2>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">
+      {% if problem %}Problem: {{ problem.title }}{% else %}Monaco Code Editor{% endif %}
+    </h2>
+    <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#leaderboardModal">
+      🏆 View Leaderboard
+    </button>
+  </div>
 
   {% if problem %}
   <div class="card mb-4 shadow-sm">
@@ -71,7 +76,6 @@
       </div>
     </div>
 
-    <!-- 👇 Custom input textarea -->
     <div class="mb-3">
       <label for="input" class="form-label">Custom Input (optional)</label>
       <textarea name="input" rows="3" class="form-control" placeholder="Enter input here">{{ input }}</textarea>
@@ -83,7 +87,6 @@
     <div id="editor" style="height: 400px; border: 1px solid #ccc;" class="my-3"></div>
   </form>
 
-  <!-- ✅ Show output if run -->
   {% if action == 'run' and output %}
   <div class="alert alert-info mt-3">
     <h5><strong>Output:</strong></h5>
@@ -91,7 +94,6 @@
   </div>
   {% endif %}
 
-  <!-- ✅ Show run result for test cases -->
   {% if action == 'run' and run_results %}
   <div class="alert alert-info mt-4">
     <strong>Run Results:</strong>
@@ -114,9 +116,101 @@
       </div>
     {% endif %}
   {% endif %}
+
+  <hr class="my-4" />
+  <h4>💬 Comments</h4>
+
+  {% if user.is_authenticated %}
+  <form method="POST" action="{% url 'submit-comment' problem.slug %}">
+    {% csrf_token %}
+    <div class="mb-3">
+      <textarea name="comment" class="form-control" rows="3" placeholder="Write a comment..." required></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Post Comment</button>
+  </form>
+  {% else %}
+  <p><a href="{% url 'auth-page' %}">Login</a> to post comments.</p>
+  {% endif %}
+
+  {% for comment in comments %}
+    <div class="border rounded p-2 mb-2 bg-light">
+      <strong>{{ comment.username }}</strong>
+      <small class="text-muted float-end">{{ comment.timestamp }}</small>
+      <p class="mb-0">{{ comment.comment }}</p>
+    </div>
+  {% empty %}
+    <p class="text-muted">No comments yet. Be the first to comment!</p>
+  {% endfor %}
 </div>
 
-<!-- ✅ Monaco Editor -->
+<div class="modal fade" id="leaderboardModal" tabindex="-1" aria-labelledby="leaderboardModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content shadow">
+      <div class="modal-header">
+        <h5 class="modal-title" id="leaderboardModalLabel">🏆 Leaderboard</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <canvas id="leaderboardChart" height="150"></canvas>
+        <div id="leaderboardTable" class="mt-3"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const modal = document.getElementById("leaderboardModal");
+  modal.addEventListener("show.bs.modal", function () {
+    fetch("{% url 'leaderboard-data' problem.slug %}")
+      .then(res => res.json())
+      .then(data => {
+        const ctx = document.getElementById('leaderboardChart').getContext('2d');
+        const labels = data.data.map(d => d.username);
+        const times = data.data.map(d => d.time_taken);
+        const bgColors = data.data.map(d => d.is_current_user ? 'rgba(255, 99, 132, 0.7)' : 'rgba(54, 162, 235, 0.6)');
+
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Time Taken (s)',
+              data: times,
+              backgroundColor: bgColors,
+              borderColor: 'rgba(54, 162, 235, 1)',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: 'Time (seconds)'
+                }
+              }
+            }
+          }
+        });
+
+        const table = data.data.map(
+          (r, i) => `<tr><td>${i + 1}</td><td>${r.username}${r.is_current_user ? ' (you)' : ''}</td><td>${r.time_taken}s</td><td>${r.percentile}%</td></tr>`
+        ).join("");
+
+        document.getElementById("leaderboardTable").innerHTML = `
+          <table class="table table-sm table-striped">
+            <thead><tr><th>#</th><th>User</th><th>Time</th><th>Percentile</th></tr></thead>
+            <tbody>${table}</tbody>
+          </table>`;
+      });
+  });
+});
+</script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs/loader.min.js"></script>
 <script>
   let editor;

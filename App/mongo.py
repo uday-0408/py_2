@@ -8,6 +8,7 @@ from pymongo import MongoClient
 client = MongoClient("mongodb://localhost:27017")
 mongo_db = client["codingPlatform"]
 submissions_collection = mongo_db["submissions"]
+comments_collection = mongo_db["comments"]
 
 
 # ✅ Log a single submission attempt under a grouped document (per user-problem pair)
@@ -99,3 +100,70 @@ def get_user_submissions(user_id):
         )
 
     return submissions
+
+
+# comments_collection = mongo_db["comments"]
+
+
+def save_comment(problem, user_id, username, comment_text):
+    comment = {
+        "user_id": str(user_id),
+        "username": username,
+        "comment": comment_text,
+        "timestamp": datetime.utcnow(),
+    }
+
+    comments_collection.update_one(
+        {"problem_slug": problem.slug},
+        {
+            "$setOnInsert": {
+                "problem_slug": problem.slug,
+                "title": problem.title,
+                "statement": problem.statement,
+                "created_at": datetime.utcnow(),
+            },
+            "$push": {"comments": comment},
+        },
+        upsert=True,
+    )
+
+
+def get_comments_for_problem(problem_slug):
+    doc = comments_collection.find_one({"problem_slug": problem_slug})
+    return doc.get("comments", []) if doc else []
+
+
+# App/services/mongo.py or leaderboard.py
+
+# from App.DB.db import mongo_db
+from bson import ObjectId
+
+
+def get_leaderboard_for_problem(problem_id):
+    pipeline = [
+        {
+            "$match": {
+                "problem_id": str(problem_id),
+                "submissions.status": "accepted",
+                "submissions.time_taken": {"$exists": True},
+            }
+        },
+        {"$unwind": "$submissions"},
+        {
+            "$match": {
+                "submissions.status": "accepted",
+                "submissions.time_taken": {"$exists": True},
+            }
+        },
+        {"$sort": {"submissions.time_taken": 1}},
+        {
+            "$project": {
+                "user_id": 1,
+                "username": 1,  # If you store usernames too
+                "time_taken": "$submissions.time_taken",
+                "submitted_at": "$submissions.submitted_at",
+            }
+        },
+    ]
+
+    return list(mongo_db.submissions.aggregate(pipeline))

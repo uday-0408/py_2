@@ -26,4 +26,6 @@ from .code_views import (
     compile_code_monaco,
     run_examples,
     submit_test_cases,
+    submit_comment,
+    leaderboard_data,
 )
