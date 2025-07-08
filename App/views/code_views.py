@@ -406,21 +406,46 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
+@login_required
 def leaderboard_data(request, slug):
+    from django.http import JsonResponse
+    from App.mongo import get_leaderboard_for_problem
+    from django.contrib.auth import get_user_model
+
+    User = get_user_model()
     problem = get_object_or_404(Problem, slug=slug)
+    user_id = str(request.user.id)
+
+    # Get all submissions
     records = get_leaderboard_for_problem(problem.id)
 
-    leaderboard = []
-    user_times = [r["time_taken"] for r in records]
+    # Filter: Only accepted submissions
+    accepted = [
+        r for r in records if r.get("status") == "accepted" and "time_taken" in r
+    ]
 
-    for index, record in enumerate(records):
+    # Sort by best time
+    accepted.sort(key=lambda x: x["time_taken"])
+
+    leaderboard = []
+    total = len(accepted)
+
+    for index, record in enumerate(accepted):
         uid = record.get("user_id")
-        username = User.objects.filter(id=uid).first().username if uid else "Anonymous"
         time = record.get("time_taken")
-        percentile = round((index + 1) / len(user_times) * 100, 2)
+        user_obj = User.objects.filter(id=uid).first()
+        username = user_obj.username if user_obj else "Anonymous"
+
+        percentile = round((index / total) * 100, 2)
 
         leaderboard.append(
-            {"username": username, "time_taken": time, "percentile": percentile}
+            {
+                "username": username,
+                "user_id": str(uid),
+                "time_taken": time,
+                "percentile": percentile,
+                "is_current_user": user_id == str(uid),
+            }
         )
 
     return JsonResponse({"data": leaderboard})

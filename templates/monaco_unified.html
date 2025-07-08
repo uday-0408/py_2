@@ -157,19 +157,30 @@
     </div>
   </div>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   const modal = document.getElementById("leaderboardModal");
+  if (!modal) {
+    console.error("Leaderboard modal not found");
+    return;
+  }
+
   modal.addEventListener("show.bs.modal", function () {
+    console.log("Leaderboard modal opening...");
     fetch("{% url 'leaderboard-data' problem.slug %}")
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to fetch leaderboard");
+        return res.json();
+      })
       .then(data => {
+        console.log("Leaderboard data received", data);
         const ctx = document.getElementById('leaderboardChart').getContext('2d');
         const labels = data.data.map(d => d.username);
         const times = data.data.map(d => d.time_taken);
-        const bgColors = data.data.map(d => d.is_current_user ? 'rgba(255, 99, 132, 0.7)' : 'rgba(54, 162, 235, 0.6)');
+        const bgColors = data.data.map(d =>
+          d.is_current_user ? 'rgba(255, 99, 132, 0.7)' : 'rgba(54, 162, 235, 0.6)'
+        );
 
         new Chart(ctx, {
           type: 'bar',
@@ -206,10 +217,16 @@ document.addEventListener("DOMContentLoaded", function () {
             <thead><tr><th>#</th><th>User</th><th>Time</th><th>Percentile</th></tr></thead>
             <tbody>${table}</tbody>
           </table>`;
+      })
+      .catch(err => {
+        console.error("Error loading leaderboard:", err);
+        document.getElementById("leaderboardTable").innerHTML = "<p class='text-danger'>Failed to load leaderboard.</p>";
       });
   });
 });
 </script>
+
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs/loader.min.js"></script>
 <script>

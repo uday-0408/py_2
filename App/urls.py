@@ -13,11 +13,12 @@ urlpatterns = [
         "compile/<slug:slug>/", views.compile_code_monaco, name="compile_with_problem"
     ),  # Compiler with problem
     path("problems/<slug:slug>/comment/", views.submit_comment, name="submit-comment"),
-    path(
-        "problems/<slug:slug>/leaderboard/",
-        views.leaderboard_data,
-        name="leaderboard-data",
-    ),
+    # path(
+    #     "problems/<slug:slug>/leaderboard/",
+    #     views.leaderboard_data,
+    #     name="leaderboard-data",
+    # ),
+    path("leaderboard/<slug:slug>/", views.leaderboard_data, name="leaderboard-data"),
     path("problems/", views.problem_list, name="problems_list"),
     path("result/", views.execution_result, name="result"),
     path("languages/", views.languages_supported, name="languages"),
